@@ -2,33 +2,7 @@
 
 <button onclick="addSignup()">Add Signup</button>
 
-<script>
-var listenSocket = {};
-var receiveSocket = {};
+<div id="ree">I am the popup</div>
 
-var connect = function() {
-    try {
-        if (!('readystate' in listenSocket)) {
-            listenSocket = new WebSocket('ws://127.0.0.1:8080/ws/live-signups');
-        }
-        if (!('readystate' in receiveSocket)) {
-            receiveSocket = new WebSocket('ws://127.0.0.1:8080/ws/send-event');
-        }
-
-        listenSocket.onmessage = function(msg) {
-            console.log(msg);
-            msgVal = JSON.parse(msg.data);
-            console.log(msgVal);
-        }
-    } catch (exception) {
-        alert(exception);
-    }
-}
-
-var addSignup = function() {
-    var eventData = {"type": "signup", "data": {"name": "bob2"}};
-    receiveSocket.send(JSON.stringify(eventData));
-}
-
-connect();
-</script>
+<script type="text/javascript" src="fossproof.js"></script>
+<link rel="stylesheet" href="fossproof.css" />

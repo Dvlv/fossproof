@@ -1,0 +1,26 @@
+#fp-main {
+    position: fixed;
+    bottom: 0;
+    right: -320px;
+    -webkit-transition: right 1.25s ease;
+    transition: right 1.25s ease;
+    width: 310px;
+    height: 100px;
+    border-radius: 20px;
+    background: yellow;
+}
+
+#fp-main.visible {
+    right: 0;
+}
+
+#fp-img {
+    width: 20%;
+    height: auto;
+    float: left;
+}
+
+#fp-message {
+    width: 70%;
+    float: left;
+}
