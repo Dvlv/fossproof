@@ -18,7 +18,7 @@ var fp = new FossProof("ws://127.0.0.1:8080");
 ```
 
 ## Use the action notifications
-This displays a popup notification to a user whenever somebody performs an action. This requires configuring two pieces - the listener and the action.
+This displays a popup notification to a user whenever somebody performs an action. This requires initialising a listener and then sending the actions.
 
 For example, let's say you are promoting a newsletter.
 
@@ -56,7 +56,7 @@ To change the image inside the popup, pass the local file path to `initListen` a
 Javascript:
 
 ```js
-sp.initListen({'image': '/static/img/signup_thumb.png'});
+fp.initListen({'image': '/static/img/signup_thumb.png'});
 ```
 
 ### Actions
