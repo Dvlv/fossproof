@@ -13,3 +13,4 @@ fossproof-test-*
 *.o
 *.obj
 *.lst
+server/storage/*

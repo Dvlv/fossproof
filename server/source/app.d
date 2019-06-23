@@ -12,6 +12,8 @@ import std.conv : to;
 import std.stdio : writeln;
 import std.string : format;
 
+import api;
+
 private WebSocket[] listeningSockets;
 private string[] signups;
 
@@ -21,7 +23,8 @@ shared static this()
     router.get("/", staticRedirect("/index.html"))
           .get("/ws/live-signups", handleWebSockets(&handleSignups))
           .get("/ws/send-event", handleWebSockets(&handleEvent))
-          .get("*", serveStaticFiles("public/"));
+          .get("*", serveStaticFiles("public/"))
+          .post("/api/action", &addAction);
 
     auto settings = new HTTPServerSettings;
     settings.port = 8080;

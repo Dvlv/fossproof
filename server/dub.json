@@ -4,7 +4,8 @@
 	],
 	"copyright": "Copyright © 2019, David Love",
 	"dependencies": {
-		"vibe-d": "~>0.8.2"
+		"vibe-d": "~>0.8.2",
+                "d2sqlite3": "0.18.1"
 	},
 	"description": "A foss social proof solution",
 	"license": "AGPL",
