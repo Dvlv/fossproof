@@ -96,12 +96,12 @@ class FossProof {
         }
     }
 
-    sendAction(category, name) {
+    sendAction(action, name) {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", this.baseUrl.replace("ws:", "http:"), true);  // TODO https
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
-            "category": category,
+            "action": action,
             "name": name,
         }));
     }
