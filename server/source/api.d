@@ -8,21 +8,14 @@ import vibe.core.log;
 import vibe.data.json;
 import vibe.http.server;
 
+import dbhandler;
+
 
 void addAction(HTTPServerRequest req, HTTPServerResponse res)
 {
-    auto db = Database("storage/actions.db");
-    db.run("CREATE TABLE IF NOT EXISTS actions (
-        ip_hash TEXT NOT NULL,
-        action TEXT NOT NULL,
-        name TEXT NOT NULL,
-        date TEXT NOT NULL
-    );");
+    auto DBH = DbHandler.get();
 
     string[string] response = ["success": "false", "error": ""];
-
-    Statement stmt = db.prepare("INSERT INTO actions (ip_hash, action, name, date)
-                                VALUES (:ip_hash, :action, :name, date('now'));");
 
     auto postedData = req.json;
 
@@ -38,9 +31,7 @@ void addAction(HTTPServerRequest req, HTTPServerResponse res)
 
     if (response["error"] == "")
     {
-        stmt.bindAll(ipHash, postedData["action"].to!string, postedData["name"].to!string);
-        stmt.execute();
-        stmt.reset();
+        DBH.insertAction(ipHash, postedData["action"].to!string, postedData["name"].to!string);
 
         response["success"] = "true";
     }

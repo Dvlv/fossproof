@@ -14,15 +14,16 @@ import std.string : format;
 
 import api;
 
-private WebSocket[] listeningSockets;
-private string[] signups;
+private WebSocket[] listeningSocketsSignup;
+private WebSocket[] listeningSocketsActions;
+private int signups;
 
 shared static this()
 {
     auto router = new URLRouter;
     router.get("/", staticRedirect("/index.html"))
           .get("/ws/live-signups", handleWebSockets(&handleSignups))
-          .get("/ws/send-event", handleWebSockets(&handleEvent))
+          .get("/ws/listen-action", handleWebSockets(&handleListenAction))
           .get("*", serveStaticFiles("public/"))
           .post("/api/action", &addAction);
 
@@ -32,46 +33,27 @@ shared static this()
     listenHTTP(settings, router);
 }
 
-void handleEvent(scope WebSocket socket)
-{
-    while (socket.waitForData)
-    {
-        if (!socket.connected)
-            break;
-
-        auto msg = socket.receiveText;
-        auto jsonMsg = parseJsonString(msg);
-
-        string msgType = jsonMsg["type"].to!string;
-        auto msgData = jsonMsg["data"];
-
-        if (msgType == "signup")
-        {
-            signups ~= msgData["name"].to!string;
-        }
-    }
-}
-
 void handleSignups(scope WebSocket socket)
 {
-    listeningSockets ~= socket;
+    listeningSocketsSignup ~= socket;
     while (true)
     {
         sleep(1.seconds);
         if (!socket.connected)
         {
-            listeningSockets.removeFromArray!WebSocket(socket);
+            listeningSocketsSignup.removeFromArray!WebSocket(socket);
             break;
         }
-        string latestSignup = "";
-        if (signups.length > 0)
-        {
-            latestSignup = signups[$ - 1];
-        }
-        string data = format(`{"total_signups": %d, "new_signup": "%s"}`,
-                signups.length, latestSignup);
+
+        string data = format(`{"total_signups": %d}`,
+                signups);
         socket.send(data);
     }
     socket.close;
-    listeningSockets.removeFromArray!WebSocket(socket);
+    listeningSocketsSignup.removeFromArray!WebSocket(socket);
+}
+
+void handleListenAction(scope WebSocket socket)
+{
+    listeningSocketsActions ~= socket;
 }
