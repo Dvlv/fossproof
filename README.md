@@ -2,6 +2,8 @@
 
 TODO:
 
+MVP:
+
 - [ ] sdl config
   - [ ] update docs
 - [ ] css
@@ -9,4 +11,11 @@ TODO:
 - [ ] separate actions
   - [ ] fontend config incl. message and image
   - [ ] backend
+  - [ ] Live counts
   - [ ] update docs
+- [ ] Installer
+
+
+Longterm:
+
+- [ ] Web Client
