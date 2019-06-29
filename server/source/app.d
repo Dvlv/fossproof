@@ -40,7 +40,6 @@ shared static this()
     auto DBH = DbHandler.get();
     DBH.connect(&listeningSocketsSignup.watch);
     DBH.connect(&listeningSocketsActions.watch);
-
 }
 
 void handleSignups(scope WebSocket socket)

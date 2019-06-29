@@ -11,6 +11,8 @@ class FossProof {
 
         this.popupDisplayTime = 3500;
         this.popupCooldownTime = 3000;
+
+        this.backlog = [];
     }
 
     initListen(config) {
@@ -20,21 +22,56 @@ class FossProof {
 
         try {
             if (!('readystate' in this.listenSocket)) {
-                this.listenSocket = new WebSocket(this.baseUrl + '/ws/listen');
+                this.listenSocket = new WebSocket(this.baseUrl + '/ws/listen-action');
             }
 
             this.listenSocket.onmessage = function(msg) {
                 if (!this.popupIsVisible) {
-                    var msgVal = JSON.parse(msg.data);
-                    var action = msgVal["action"];
-                    var name = msgVal["name"];
-
-                    this.displayPopup(action, name);
+                    this.parseAndDisplay(msg);
+                } else {
+                    this.backlog.push(msg);
                 }
-            }
+            }.bind(this);
         } catch (exception) {
             alert(exception);
         }
+
+        setInterval(function() {
+            this.displayBacklog()
+        }.bind(this), 5000);
+    }
+
+    displayBacklog() {
+        if (this.backlog.length) {
+            if (!this.popupIsVisible) {
+                this.parseAndDisplay(this.backlog.shift());
+            }
+        }
+    }
+
+    parseAndDisplay(msg) {
+        var msgVal = JSON.parse(msg.data);
+        var action = msgVal["action"];
+        var name = msgVal["name"];
+
+        this.displayPopup(action, name);
+    }
+
+    onPopupCooldown() {
+        this.popupIsVisible = false;
+    }
+
+    displayPopup(action, name) {
+        // TODO action stuff
+        var message = "[name] just signed up!"
+        // TODO if config overrides
+        this.popupMessage.innerHTML = message.replace("[name]", name);
+        this.popup.classList.add("visible");
+        this.popupIsVisible = true;
+
+        setTimeout(function() {
+            this.hidePopup()
+        }.bind(this), this.popupDisplayTime);
     }
 
     createPopupHtml(config) {
@@ -55,29 +92,11 @@ class FossProof {
         this.popup = document.getElementById("fp-main");
         this.popupMessage = document.getElementById("fp-message");
     }
-
-    displayPopup(action, name) {
-        // TODO action stuff
-        var message = "[name] just signed up!"
-        // TODO if config overrides
-        this.popupMessage.innerHTML = message.replace("[name]", name);
-        this.popup.classList.add("visible");
-        this.popupIsVisible = true;
-
-        setTimeout(function() {
-            this.hidePopup()
-        }.bind(this), this.popupDisplayTime);
-    }
-
     hidePopup() {
         this.popup.classList.remove("visible");
         setTimeout(function() {
-            this.onPopupCooldown
+            this.onPopupCooldown()
         }.bind(this), this.popupCooldownTime);
-    }
-
-    onPopupCooldown() {
-        this.popupIsVisible = false;
     }
 
     initLiveSignupCount(domId) {
