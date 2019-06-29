@@ -13,9 +13,11 @@ import std.stdio : writeln;
 import std.string : format;
 
 import api;
+import dbhandler: DbHandler;
+import socketcollection: SocketCollection;
 
-private WebSocket[] listeningSocketsSignup;
-private WebSocket[] listeningSocketsActions;
+SocketCollection listeningSocketsSignup;
+SocketCollection listeningSocketsActions;
 private int signups;
 
 shared static this()
@@ -31,29 +33,22 @@ shared static this()
     settings.port = 8080;
     settings.bindAddresses = ["::1", "127.0.0.1"];
     listenHTTP(settings, router);
+
+    listeningSocketsSignup = new SocketCollection(["signup"]);
+    listeningSocketsActions = new SocketCollection(["subscribe"]);
+
+    auto DBH = DbHandler.get();
+    DBH.connect(&listeningSocketsSignup.watch);
+    DBH.connect(&listeningSocketsActions.watch);
+
 }
 
 void handleSignups(scope WebSocket socket)
 {
-    listeningSocketsSignup ~= socket;
-    while (true)
-    {
-        sleep(1.seconds);
-        if (!socket.connected)
-        {
-            listeningSocketsSignup.removeFromArray!WebSocket(socket);
-            break;
-        }
-
-        string data = format(`{"total_signups": %d}`,
-                signups);
-        socket.send(data);
-    }
-    socket.close;
-    listeningSocketsSignup.removeFromArray!WebSocket(socket);
+    listeningSocketsSignup.addSocket(socket);
 }
 
 void handleListenAction(scope WebSocket socket)
 {
-    listeningSocketsActions ~= socket;
+    listeningSocketsActions.addSocket(socket);
 }

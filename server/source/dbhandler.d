@@ -1,4 +1,9 @@
-import d2sqlite3;
+import d2sqlite3: Database, Statement;
+
+import std.signals;
+import std.conv;
+import socketcollection: SocketCollection;
+
 
 class DbHandler
 {
@@ -12,6 +17,8 @@ class DbHandler
 
     // Thread global
     private __gshared DbHandler instance_;
+
+    SocketCollection[] socketCollections;
 
     static DbHandler get()
     {
@@ -36,13 +43,9 @@ class DbHandler
         auto db = Database("storage/actions.db");
         bool exists = false;
 
-        ResultRange results = db.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='actions';");
-        foreach (Row row; results)
-        {
-            auto count = row.peek!long(0);
-            if (count > 0) {
-                exists = true;
-            }
+        int count = db.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='actions';").oneValue!int;
+        if (count > 0) {
+            exists = true;
         }
 
         if (!exists) {
@@ -55,6 +58,11 @@ class DbHandler
         }
     }
 
+    void addSocketCollection(SocketCollection sc)
+    {
+        this.socketCollections ~= sc;
+    }
+
     void insertAction(string ipHash, string action, string name)
     {
         auto db = Database("storage/actions.db");
@@ -63,5 +71,26 @@ class DbHandler
         stmt.bindAll(ipHash, action, name);
         stmt.execute();
         stmt.reset();
+
+        emit(action, name);
     }
+
+    long countForAction(string action)
+    {
+        auto db = Database("storage/actions.db");
+        Statement stmt = db.prepare("SELECT count(*) FROM actions WHERE action = :action");
+
+        stmt.bindAll(action);
+        long count = stmt.execute().oneValue!long;
+
+        return count;
+    }
+
+    void pollAction(string action)
+    {
+        auto count = countForAction(action);
+        emit(action, to!string(count));
+    }
+
+    mixin Signal!(string, string);
 }
