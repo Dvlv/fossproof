@@ -6,6 +6,7 @@ MVP:
 
 - [ ] sdl config
   - [ ] update docs
+- [ ] Domain auth
 - [ ] css
 - [ ] default image
 - [ ] separate actions
@@ -14,8 +15,12 @@ MVP:
   - [ ] Live counts
   - [ ] update docs
 - [ ] Installer
+- [ ] Auth for Api
+    - [ ] Database table
+    - [ ] Implement
 
 
 Longterm:
 
 - [ ] Web Client
+- [ ] One instance serves multiple domains
