@@ -12,6 +12,7 @@ import std.conv : to;
 import std.stdio : writeln;
 import std.string : format;
 import std.file;
+import std.array;
 
 import api;
 import dbhandler: DbHandler;
@@ -20,6 +21,10 @@ import socketcollection: SocketCollection;
 SocketCollection listeningSocketsSignup;
 SocketCollection listeningSocketsActions;
 private int signups;
+
+string[] authorisedDomains;
+ushort port;
+Json settingsJson;
 
 shared static this()
 {
@@ -30,23 +35,8 @@ shared static this()
           .get("*", serveStaticFiles("public/"))
           .post("/api/action", &addAction);
 
-    ushort port;
-    Json settingsJson;
-
     if(exists("./fossproof-settings.json")) {
-        string settingsContent = readText("./fossproof-settings.json");
-        try {
-            settingsJson = parseJson(settingsContent);
-        } catch(JSONException e) {
-            logInfo("fossproof-settings is invalid json: " ~ e.msg);
-        }
-
-        if ("port" in settingsJson) {
-            port = settingsJson["port"].to!ushort;
-        }
-        else {
-            port = 8080;
-        }
+        parseSettingsFile();
     } else {
         logInfo("File fossproof-settings.json could not be found.");
     }
@@ -59,9 +49,44 @@ shared static this()
     listeningSocketsSignup = new SocketCollection(["signup"]);
     listeningSocketsActions = new SocketCollection(["subscribe"]);
 
+    listeningSocketsActions.setAuthorisedDomains(authorisedDomains);
+    listeningSocketsSignup.setAuthorisedDomains(authorisedDomains);
+
     auto DBH = DbHandler.get();
     DBH.connect(&listeningSocketsSignup.watch);
     DBH.connect(&listeningSocketsActions.watch);
+}
+
+void parseSettingsFile()
+{
+    string settingsContent = readText("./fossproof-settings.json");
+    try
+    {
+        settingsJson = parseJson(settingsContent);
+    }
+    catch (JSONException e)
+    {
+        logInfo("fossproof-settings is invalid json: " ~ e.msg);
+    }
+
+    if ("port" in settingsJson)
+    {
+        port = settingsJson["port"].to!ushort;
+    }
+    else
+    {
+        port = 8080;
+    }
+
+    if ("domains" in settingsJson) {
+        if (to!string(settingsJson["domains"].type()) == "array") {
+            foreach(domain; settingsJson["domains"]) {
+                authorisedDomains ~= domain.to!string;
+            }
+        } else {
+            logInfo("fossproof-settings.json 'domains' must be an array! No domains will be authorised.");
+        }
+    }
 }
 
 void handleSignups(scope WebSocket socket)
@@ -71,5 +96,6 @@ void handleSignups(scope WebSocket socket)
 
 void handleListenAction(scope WebSocket socket)
 {
+    logInfo(to!string(socket.request.headers));
     listeningSocketsActions.addSocket(socket);
 }
