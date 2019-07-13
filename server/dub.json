@@ -6,7 +6,6 @@
 	"dependencies": {
 		"vibe-d": "~>0.8.2",
                 "d2sqlite3": "0.18.1",
-                "sdlang-d": "~>0.10.5"
 	},
 	"description": "A foss social proof solution",
 	"license": "AGPL",

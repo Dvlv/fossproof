@@ -11,6 +11,7 @@ import core.time;
 import std.conv : to;
 import std.stdio : writeln;
 import std.string : format;
+import std.file;
 
 import api;
 import dbhandler: DbHandler;
@@ -29,8 +30,29 @@ shared static this()
           .get("*", serveStaticFiles("public/"))
           .post("/api/action", &addAction);
 
+    ushort port;
+    Json settingsJson;
+
+    if(exists("./fossproof-settings.json")) {
+        string settingsContent = readText("./fossproof-settings.json");
+        try {
+            settingsJson = parseJson(settingsContent);
+        } catch(JSONException e) {
+            logInfo("fossproof-settings is invalid json: " ~ e.msg);
+        }
+
+        if ("port" in settingsJson) {
+            port = settingsJson["port"].to!ushort;
+        }
+        else {
+            port = 8080;
+        }
+    } else {
+        logInfo("File fossproof-settings.json could not be found.");
+    }
+
     auto settings = new HTTPServerSettings;
-    settings.port = 8080;
+    settings.port = port;
     settings.bindAddresses = ["::1", "127.0.0.1"];
     listenHTTP(settings, router);
 
