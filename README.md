@@ -4,14 +4,14 @@ TODO:
 
 MVP:
 
-- [ ] sdl config
-  - [ ] update docs
-- [ ] Domain auth
+
+- [x] Domain auth
+- [ ] Daily stuff inc salt and delete
 - [ ] css
 - [ ] default image
 - [ ] separate actions
   - [ ] fontend config incl. message and image
-  - [ ] backend
+  - [x] backend
   - [ ] Live counts
   - [ ] update docs
 - [ ] Installer
