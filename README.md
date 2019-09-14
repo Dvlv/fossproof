@@ -6,11 +6,11 @@ MVP:
 
 
 - [x] Domain auth
-- [ ] Daily stuff inc salt and delete
+- [x] Daily stuff inc salt and delete
 - [ ] css
 - [ ] default image
 - [ ] separate actions
-  - [ ] fontend config incl. message and image
+  - [x] fontend config incl. message and image
   - [x] backend
   - [ ] Live counts
   - [ ] update docs
