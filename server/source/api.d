@@ -27,7 +27,9 @@ void addAction(HTTPServerRequest req, HTTPServerResponse res)
         response["error"] = "Missing action";
     }
 
-    string ipHash = toHexString(md5Of(req.clientAddress.toAddressString()));
+    string ipSalt = DBH.getSalt();
+
+    string ipHash = toHexString(md5Of(ipSalt ~ req.clientAddress.toAddressString()));
     logInfo(req.host); // This is to use for domain auth
 
     if (response["error"] == "")

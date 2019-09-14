@@ -2,6 +2,8 @@ import d2sqlite3: Database, Statement;
 
 import std.signals;
 import std.conv;
+import std.datetime : Clock, SysTime, Date;
+import std.random;
 
 
 class DbHandler
@@ -53,6 +55,44 @@ class DbHandler
                 date TEXT NOT NULL
             );");
         }
+    }
+
+    string getSalt()
+    {
+        SysTime timeNow = Clock.currTime();
+        Date dateNow = cast(Date)timeNow;
+        string sqliteDateNow = dateNow.toISOExtString();
+
+        string salt;
+
+        auto db = Database("storage/dailySalt.db");
+        Statement stmt = db.prepare("SELECT salt FROM daily_salt WHERE date = :date");
+        stmt.bindAll(sqliteDateNow);
+        auto results = stmt.execute();
+        if (!results.empty) {
+            salt = results.front.peek!string(0);
+        } else {
+            salt = generateNewSalt();
+            storeNewDailySalt(sqliteDateNow, salt);
+        }
+
+        return salt;
+    }
+
+    string generateNewSalt()
+    {
+        int randNum = uniform(0, 65536);
+        string randStr = ["a", "b", "c", "d", "e", "x", "y", "z"].choice();
+        string salt = randStr ~ randNum.to!string;
+
+        return salt;
+    }
+
+    void storeNewDailySalt(string now, string salt)
+    {
+        auto db = Database("storage/dailySalt.db");
+        db.prepare("DELETE FROM daily_salt WHERE date <> :now").inject(now);
+        db.prepare("INSERT INTO daily_salt (date, salt) VALUES (:date, :salt)").inject(now, salt);
     }
 
     void insertAction(string ipHash, string action, string name)
