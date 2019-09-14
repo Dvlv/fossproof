@@ -39,25 +39,40 @@ fp.initListen();
 #### Customising the listener's popup
 An object of variables can be passed to `initListen` to change various aspects of the popup message.
 
-TODO: think of sane way for the user to have a diff message/img per action type if required. I assume `{action: {msg:, img:}, action2: {msg, img},}`.
-
-##### Message
-To customise the listener message, pass a string to `initListen` as `message`. Use "[name]" in place of the action taker's name.
-
-Javascript:
+If you only want one type of popup, this config object can include just a `message` and `image` property.
+Use the string `[name]` inside the message to be replaced by the action taker's name.
 
 ```js
-fp.initListen({'message': '[name] has just subscribed to my newsletter!'});
+{"message": "[name] has just subscribed!", "image": "/img/fossproof.png"}
 ```
 
-##### Image
-To change the image inside the popup, pass the local file path to `initListen` as `image`.
-
-Javascript:
+To have multiple different popups for different actions, an object like this can be used instead:
 
 ```js
-fp.initListen({'image': '/static/img/signup_thumb.png'});
+{
+    "action_one": {
+        "message": "[name] performed action one!",
+        "image": "/img/fossproof/action_one.png",
+    },
+    "action_two": {
+        "message": "[name] performed action two!",
+        "image": "/img/fossproof/action.two.png",
+    },
+}
 ```
+
+To set a global image for each action, set the `"image"` property on the outer object:
+```js
+{
+    "image": "/img/global-img.png",
+    "subscribe": {
+        "message": "[name] subscribed!",
+    }
+}
+```
+
+In all cases, `"image"` is optional. If left out, no image will show. 
+
 
 ### Actions
 **Note** Actions can also be posted server-side. See the server docs for instructions.
