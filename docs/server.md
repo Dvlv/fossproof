@@ -1,8 +1,10 @@
 # Configuration
-Configuring FOSSProof is done via the `fp-config.sdl` file. The configurations are as follows:
+Configuring FOSSProof is done via the `fossproof-settings.json` file. The configurations are as follows:
 
-- **allow_sources**: Array of strings containing the url(s) which you intend to call FOSSProof from. FOSSProof will ignore any calls to its websockets 
-from sources not in this list. For example, if your homepage is `"https://my-website.com/"`, you will need `"my-website.com"` in this array.
+- **domains**: Array of strings containing the url(s) which you intend to call FOSSProof from. FOSSProof will ignore any calls to its websockets from sources not in this list. For example, if your homepage is `"https://my-website.com/"`, you will need `"my-website.com"` in this array.
+
+- **actions**: (optional) Array of strings representing the actions you will be sending to the API. Any action sent which is not in this array will not be used.
+    - Default: ["subscribe"]
 
 
 # Server Side Actions
