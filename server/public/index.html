@@ -10,7 +10,15 @@
 
 <script>
     var fp = new FossProof("ws://127.0.0.1:8080");
-    fp.initListen({});
+    var cfg = {
+        "subscribe": {
+            "message": "[name] just subscribed!1",
+        },
+        "news": {
+            "message": "[name] just signed up to my newsletter",
+        },
+    };
+fp.initListen(cfg);
 
 var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance
 xmlhttp.open("POST", "/api/action");

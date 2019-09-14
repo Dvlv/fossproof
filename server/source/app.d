@@ -23,6 +23,7 @@ SocketCollection listeningSocketsActions;
 private int signups;
 
 string[] authorisedDomains;
+string[] listenActions;
 ushort port;
 Json settingsJson;
 
@@ -47,7 +48,7 @@ shared static this()
     listenHTTP(settings, router);
 
     listeningSocketsSignup = new SocketCollection(["signup"]);
-    listeningSocketsActions = new SocketCollection(["subscribe"]);
+    listeningSocketsActions = new SocketCollection(listenActions);
 
     listeningSocketsActions.setAuthorisedDomains(authorisedDomains);
     listeningSocketsSignup.setAuthorisedDomains(authorisedDomains);
@@ -78,14 +79,37 @@ void parseSettingsFile()
         port = 8080;
     }
 
-    if ("domains" in settingsJson) {
-        if (to!string(settingsJson["domains"].type()) == "array") {
-            foreach(domain; settingsJson["domains"]) {
+    if ("domains" in settingsJson)
+    {
+        if (to!string(settingsJson["domains"].type()) == "array")
+        {
+            foreach (domain; settingsJson["domains"])
+            {
                 authorisedDomains ~= domain.to!string;
             }
-        } else {
+        }
+        else
+        {
             logInfo("fossproof-settings.json 'domains' must be an array! No domains will be authorised.");
         }
+    }
+
+    if ("actions" in settingsJson)
+    {
+        if (to!string(settingsJson["actions"].type()) == "array")
+        {
+            foreach (action; settingsJson["actions"])
+            {
+                listenActions ~= action.to!string;
+            }
+        }
+        else
+        {
+            logInfo("fossproof-settings.json 'actions' must be an array! Defaulting to 'subscribe'");
+            listenActions ~= "subscribe";
+        }
+    } else {
+        listenActions ~= "subscribe";
     }
 }
 

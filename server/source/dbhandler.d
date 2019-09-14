@@ -2,7 +2,6 @@ import d2sqlite3: Database, Statement;
 
 import std.signals;
 import std.conv;
-import socketcollection: SocketCollection;
 
 
 class DbHandler
@@ -17,8 +16,6 @@ class DbHandler
 
     // Thread global
     private __gshared DbHandler instance_;
-
-    SocketCollection[] socketCollections;
 
     static DbHandler get()
     {
@@ -56,11 +53,6 @@ class DbHandler
                 date TEXT NOT NULL
             );");
         }
-    }
-
-    void addSocketCollection(SocketCollection sc)
-    {
-        this.socketCollections ~= sc;
     }
 
     void insertAction(string ipHash, string action, string name)

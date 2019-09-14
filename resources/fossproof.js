@@ -5,6 +5,8 @@ class FossProof {
         this.countSocket = {};
         this.actionSocket = {};
 
+        this.config = null;
+
         this.popup = null;
         this.popupMessage = null;
         this.popupIsVisible = false;
@@ -18,6 +20,7 @@ class FossProof {
     initListen(config) {
         // create the popup html
         // listen on the websocket
+        this.config = config;
         this.createPopupHtml(config);
 
         try {
@@ -62,9 +65,33 @@ class FossProof {
     }
 
     displayPopup(action, name) {
-        // TODO action stuff
-        var message = "[name] just signed up!"
-        // TODO if config overrides
+        var message = null;
+        var img = null;
+
+        if (this.config.hasOwnProperty(action)) {
+            var actionConfig = this.config[action];
+            if (typeof actionConfig === "object" && actionConfig !== null) {
+                img = actionConfig["image"] ? actionConfig["image"] : null;
+                message = actionConfig["message"] ? actionConfig["message"] : null;
+            }
+        } else {
+            if (this.config.hasOwnProperty("message")) {
+                message = this.config["message"];
+            }
+
+            if (this.config.hasOwnProperty("image")) {
+                img = this.config["image"];
+            }
+        }
+
+        if (!message) {
+            message = "[name] has just signed up!";
+        }
+
+        if (img) {
+            document.getElementById("fp-img").src = img;
+        }
+
         this.popupMessage.innerHTML = message.replace("[name]", name);
         this.popup.classList.add("visible");
         this.popupIsVisible = true;
@@ -92,6 +119,7 @@ class FossProof {
         this.popup = document.getElementById("fp-main");
         this.popupMessage = document.getElementById("fp-message");
     }
+
     hidePopup() {
         this.popup.classList.remove("visible");
         setTimeout(function() {
